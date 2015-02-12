@@ -39,6 +39,7 @@
 (defgroup haskell-highlight-indentation nil
   "Highlight indentation by Emacs font-lock system."
   :prefix "haskell-highlight-indentation"
+  :prefix "hhi"
   :group 'haskell)
 
 (defvar haskell-highlight-indentation-face 'haskell-highlight-indentation-face)
@@ -79,7 +80,7 @@ Like above column count style, but nearest one is highlighted."
   :type 'integer
   :group 'haskell-highlight-indentation)
 
-(defun haskell-highlight-indentation-by-column-count-only-last (offset &optional prefix max-column remove)
+(defun hhi--by-column-count-only-last (offset &optional prefix max-column remove)
   "Insert indentation style to `font-lock-keywords' for column count only last.
 
 OFFSET
@@ -96,7 +97,7 @@ REMOVE"
                        "\\( \\)")
               (1 'haskell-highlight-indentation-face)))))
 
-(defun haskell-highlight-indentation-by-column-count (offset &optional prefix max-column remove)
+(defun hhi--by-column-count (offset &optional prefix max-column remove)
   "Insert indentation style to `font-lock-keywords' for column count.
 
 OFFSET
@@ -111,7 +112,7 @@ REMOVE"
                     collect `(,(format "%s \\{%d\\}\\( \\)" (or prefix "^") n)
                               (1 'haskell-highlight-indentation-face)))))
 
-(defun haskell-highlight-indentation-faster-highlight-column-p ()
+(defun hhi--faster-highlight-column-p ()
   ""
   (save-excursion
     (let ((start-column (1- (current-column)))
@@ -125,7 +126,7 @@ REMOVE"
                                   start-column))
                     finally return (= col start-column))))))
 
-(defun haskell-highlight-indentation-highlight-column-p ()
+(defun hhi--highlight-column-p ()
   ""
   (save-excursion
     (let ((start-column (1- (current-column)))
@@ -143,7 +144,7 @@ REMOVE"
                                   start-column))
                     finally return (= col start-column))))))
 
-(defun haskell-highlight-indentation-literate-highlight-column-p ()
+(defun hhi--literate-highlight-column-p ()
   ""
   (save-excursion
     (let ((max-comment (- (buffer-size)))
@@ -166,7 +167,7 @@ REMOVE"
                               start-column)
                     finally return (= col start-column))))))
 
-(defun haskell-highlight-indentation-by-indent-levels (&optional remove)
+(defun hhi--by-indent-levels (&optional remove)
   ""
   (funcall (if remove
                #'font-lock-remove-keywords
@@ -175,11 +176,11 @@ REMOVE"
            `((" " 0 (if (,(if (and (eq major-mode 'literate-haskell-mode)
                                    (boundp 'haskell-literate)
                                    (eq haskell-literate 'bird))
-                              'haskell-highlight-indentation-literate-highlight-column-p
-                            'haskell-highlight-indentation-highlight-column-p))
+                              'hhi--literate-highlight-column-p
+                            'hhi--highlight-column-p))
                         'haskell-highlight-indentation-face)))))
 
-(defun haskell-highlight-indentation-by-indent-levels-fast (&optional remove)
+(defun hhi--by-indent-levels-fast (&optional remove)
   ""
   (funcall (if remove
                #'font-lock-remove-keywords
@@ -188,8 +189,8 @@ REMOVE"
            `((" " 0 (if (,(if (and (eq major-mode 'literate-haskell-mode)
                                    (boundp 'haskell-literate)
                                    (eq haskell-literate 'bird))
-                              'haskell-highlight-indentation-literate-highlight-column-p
-                            'haskell-highlight-indentation-faster-highlight-column-p))
+                              'hhi--literate-highlight-column-p
+                            'hhi--faster-highlight-column-p))
                         'haskell-highlight-indentation-face)))))
 
 
@@ -199,27 +200,27 @@ REMOVE"
 When REMOVE is t, remove the keyword from `font-lock-keywords'"
   (pcase haskell-highlight-indentation-style
     (`indent
-     (haskell-highlight-indentation-by-indent-levels remove))
+     (hhi--by-indent-levels remove))
     (`indent-fast
-     (haskell-highlight-indentation-by-indent-levels-fast remove))
+     (hhi--by-indent-levels-fast remove))
     (`column
-     (haskell-highlight-indentation-by-column-count haskell-highlight-indentation-column
-                                                    (if (and (eq major-mode 'literate-haskell-mode)
-                                                             (boundp 'haskell-literate)
-                                                             (eq haskell-literate 'bird))
-                                                        "^> "
-                                                      (concat "^" (make-string haskell-highlight-indentation-column ?\ )))
-                                                    nil
-                                                    remove))
+     (hhi--by-column-count haskell-highlight-indentation-column
+                           (if (and (eq major-mode 'literate-haskell-mode)
+                                    (boundp 'haskell-literate)
+                                    (eq haskell-literate 'bird))
+                               "^> "
+                             (concat "^" (make-string haskell-highlight-indentation-column ?\ )))
+                           nil
+                           remove))
     (`column-only-last
-     (haskell-highlight-indentation-by-column-count-only-last haskell-highlight-indentation-column
-                                                              (if (and (eq major-mode 'literate-haskell-mode)
-                                                                       (boundp 'haskell-literate)
-                                                                       (eq haskell-literate 'bird))
-                                                                  "^> "
-                                                                "^")
-                                                              nil
-                                                              remove))))
+     (hhi--by-column-count-only-last haskell-highlight-indentation-column
+                                     (if (and (eq major-mode 'literate-haskell-mode)
+                                              (boundp 'haskell-literate)
+                                              (eq haskell-literate 'bird))
+                                         "^> "
+                                       "^")
+                                     nil
+                                     remove))))
 ;;;###autoload
 (define-minor-mode haskell-highlight-indentation-mode
   "Indentation highlighting for haskell modes.
