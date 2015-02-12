@@ -1,9 +1,10 @@
 ;;; haskell-highlight-indentation.el --- haskell highlight indentation -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014  nilninull
+;; Copyright (C) 2014, 2015  nilninull
 
 ;; Author: nilninull <nilninull@gmail.com>
-;; Keywords:
+;; Keywords: haskell programming
+;; Version: 0.1.0
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,7 +24,7 @@
 ;; This package was inspired by Emacs highlight-indentation package,
 ;; but rewrote to more suitable for haskell languages.
 
-;; Usage:
+;;; Usage:
 ;; Write these codes to your Emacs init file.
 ;; (require 'haskell-highlight-indentation)
 ;; (add-hook 'haskell-mode-hook 'haskell-highlight-indentation-mode)
