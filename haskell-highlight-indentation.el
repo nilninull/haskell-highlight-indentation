@@ -173,28 +173,30 @@ REMOVE"
        (boundp 'haskell-literate)
        (eq haskell-literate 'bird)))
 
-(defun hhi--by-indent-levels (&optional remove)
+(defun hhi--modify-font-lock-keywords (literate-func
+                                       normal-func
+                                       &optional remove)
   ""
   (funcall (if remove
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
            nil
            `((" " 0 (if (,(if (hhi--literate-haskell-bird-mode-p)
-                              'hhi--literate-highlight-column-p
-                            'hhi--highlight-column-p))
+                              literate-func
+                            normal-func))
                         'haskell-highlight-indentation-face)))))
 
-(defun hhi--by-indent-levels-fast (&optional remove)
+(defsubst hhi--by-indent-levels (&optional remove)
   ""
-  (funcall (if remove
-               #'font-lock-remove-keywords
-             #'font-lock-add-keywords)
-           nil
-           `((" " 0 (if (,(if (hhi--literate-haskell-bird-mode-p)
-                              'hhi--literate-highlight-column-p
-                            'hhi--faster-highlight-column-p))
-                        'haskell-highlight-indentation-face)))))
+  (hhi--modify-font-lock-keywords 'hhi--literate-highlight-column-p
+                                  'hhi--highlight-column-p
+                                  remove))
 
+(defsubst hhi--by-indent-levels-fast (&optional remove)
+  ""
+  (hhi--modify-font-lock-keywords 'hhi--literate-highlight-column-p
+                                  'hhi--faster-highlight-column-p
+                                  remove))
 
 (defun haskell-highlight-indentation (&optional remove)
   "A highlight indentation keyword add to `font-lock-keywords'.
