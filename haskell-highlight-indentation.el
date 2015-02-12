@@ -51,25 +51,27 @@
   :group 'haskell-faces)
 
 (defcustom haskell-highlight-indentation-style 'indent
-  "Set the select indentation style.
+  "Set the selected indentation style.
 
 There are 4 indentation styles.
 
-* previous indentation
+* previous code indentation levels
 
-Recomended
+  *Recomended*
 
-* previous indentation (speed priority)
+* previous code indentation levels (speed priority)
 
-This mode does not exceed ride a comment.
+  Like a above style.
+  But this mode does not exceed ride a comment.
 
 * column count
 
-Highlight each `haskell-highlight-indentation-column' columns
+  Highlight each `haskell-highlight-indentation-column' columns
 
 * column count (only last)
 
-Like above column count style, but nearest one is highlighted."
+  Like a above style.
+  But nearest one (only one column per line) is highlighted."
   :type '(choice (const :tag "By previous indentation levels" indent)
                  (const :tag "By previous indentation levels (speed priority)" indent-fast)
                  (const :tag "By column count" column)
@@ -82,12 +84,12 @@ Like above column count style, but nearest one is highlighted."
   :group 'haskell-highlight-indentation)
 
 (defun hhi--by-column-count-only-last (offset &optional prefix max-column remove)
-  "Insert indentation style to `font-lock-keywords' for column count only last.
+  "Set or remove `font-lock-keywords' for column count (only last) style.
 
-OFFSET
-PREFIX
-MAX-COLUMN
-REMOVE"
+OFFSET     (number): for highlighting column by each this number
+PREFIX     (string): for keywords.
+MAX-COLUMN (number): how length to highlighted
+REMOVE     (bool)  : remove keywords or not"
   (funcall (if remove
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
@@ -99,12 +101,12 @@ REMOVE"
               (1 'haskell-highlight-indentation-face)))))
 
 (defun hhi--by-column-count (offset &optional prefix max-column remove)
-  "Insert indentation style to `font-lock-keywords' for column count.
+  "Set or remove `font-lock-keywords' for column count style.
 
-OFFSET
-PREFIX
-MAX-COLUMN
-REMOVE"
+OFFSET     (number): for highlighting column by each this number
+PREFIX     (string): for keywords.
+MAX-COLUMN (number): how length to highlighted
+REMOVE     (bool)  : remove keywords or not"
   (funcall (if remove
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
@@ -114,7 +116,9 @@ REMOVE"
                               (1 'haskell-highlight-indentation-face)))))
 
 (defun hhi--faster-highlight-column-p ()
-  ""
+  "Judge the current column should be highlighted or not.
+
+This function is not exceed ride a comment."
   (save-excursion
     (let ((start-column (1- (current-column)))
           (col 0))
@@ -128,7 +132,7 @@ REMOVE"
                     finally return (= col start-column))))))
 
 (defun hhi--highlight-column-p ()
-  ""
+  "Judge the current column should be highlighted or not."
   (save-excursion
     (let ((start-column (1- (current-column)))
           (max-comment (- (buffer-size)))
@@ -146,7 +150,9 @@ REMOVE"
                     finally return (= col start-column))))))
 
 (defun hhi--literate-highlight-column-p ()
-  ""
+  "Judge the current column should be highlighted or not.
+
+This function is for literate-haskell-mode"
   (save-excursion
     (let ((max-comment (- (buffer-size)))
           start-column
@@ -177,7 +183,11 @@ REMOVE"
 (defun hhi--modify-font-lock-keywords (literate-func
                                        normal-func
                                        &optional remove)
-  ""
+  "Modify `font-lock-keywords'.
+
+LITERATE-FUNC for literate-haskell-mode
+NORMAL-FUNC for normal haskell-mode
+If REMOVE is not nil, keywords removed."
   (funcall (if remove
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
@@ -188,13 +198,13 @@ REMOVE"
                         'haskell-highlight-indentation-face)))))
 
 (defsubst hhi--by-indent-levels (&optional remove)
-  ""
+  "Set or REMOVE `font-lock-keywords'."
   (hhi--modify-font-lock-keywords 'hhi--literate-highlight-column-p
                                   'hhi--highlight-column-p
                                   remove))
 
 (defsubst hhi--by-indent-levels-fast (&optional remove)
-  ""
+  "Set or REMOVE `font-lock-keywords' for faster mode.."
   (hhi--modify-font-lock-keywords 'hhi--literate-highlight-column-p
                                   'hhi--faster-highlight-column-p
                                   remove))
