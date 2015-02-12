@@ -167,15 +167,19 @@ REMOVE"
                               start-column)
                     finally return (= col start-column))))))
 
+(defun hhi--literate-haskell-bird-mode-p ()
+  "Return nil when buffer is not literate-haskell bird mode."
+  (and (eq major-mode 'literate-haskell-mode)
+       (boundp 'haskell-literate)
+       (eq haskell-literate 'bird)))
+
 (defun hhi--by-indent-levels (&optional remove)
   ""
   (funcall (if remove
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
            nil
-           `((" " 0 (if (,(if (and (eq major-mode 'literate-haskell-mode)
-                                   (boundp 'haskell-literate)
-                                   (eq haskell-literate 'bird))
+           `((" " 0 (if (,(if (hhi--literate-haskell-bird-mode-p)
                               'hhi--literate-highlight-column-p
                             'hhi--highlight-column-p))
                         'haskell-highlight-indentation-face)))))
@@ -186,9 +190,7 @@ REMOVE"
                #'font-lock-remove-keywords
              #'font-lock-add-keywords)
            nil
-           `((" " 0 (if (,(if (and (eq major-mode 'literate-haskell-mode)
-                                   (boundp 'haskell-literate)
-                                   (eq haskell-literate 'bird))
+           `((" " 0 (if (,(if (hhi--literate-haskell-bird-mode-p)
                               'hhi--literate-highlight-column-p
                             'hhi--faster-highlight-column-p))
                         'haskell-highlight-indentation-face)))))
@@ -205,18 +207,14 @@ When REMOVE is t, remove the keyword from `font-lock-keywords'"
      (hhi--by-indent-levels-fast remove))
     (`column
      (hhi--by-column-count haskell-highlight-indentation-column
-                           (if (and (eq major-mode 'literate-haskell-mode)
-                                    (boundp 'haskell-literate)
-                                    (eq haskell-literate 'bird))
+                           (if (hhi--literate-haskell-bird-mode-p)
                                "^> "
                              (concat "^" (make-string haskell-highlight-indentation-column ?\ )))
                            nil
                            remove))
     (`column-only-last
      (hhi--by-column-count-only-last haskell-highlight-indentation-column
-                                     (if (and (eq major-mode 'literate-haskell-mode)
-                                              (boundp 'haskell-literate)
-                                              (eq haskell-literate 'bird))
+                                     (if (hhi--literate-haskell-bird-mode-p)
                                          "^> "
                                        "^")
                                      nil
