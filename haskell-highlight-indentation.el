@@ -3,8 +3,10 @@
 ;; Copyright (C) 2014, 2015  nilninull
 
 ;; Author: nilninull <nilninull@gmail.com>
-;; Keywords: haskell programming
+;; URL: https://github.com/nilninull/haskell-highlight-indentation
+;; Keywords: haskell, programming
 ;; Version: 0.1.0
+;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,7 +24,10 @@
 ;;; Commentary:
 
 ;; This package was inspired by Emacs highlight-indentation package,
-;; but rewrote to more suitable for haskell languages.
+;; but rewrote to more suitable for haskell language programming.
+
+;; Sample images can see at the web site.
+;; https://github.com/nilninull/haskell-highlight-indentation
 
 ;;; Usage:
 ;; Write these codes to your Emacs init file.
